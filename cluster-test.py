@@ -13,9 +13,6 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 
 app = Flask(__name__)
 
-xValues = []
-yValues = []
-zValues = []
 names = []
 
 numClusters = 2
@@ -37,55 +34,77 @@ def hello_world():
 @app.route('/cluster-test/<name>')
 def cluster_test():
 
-    #url = 'http://matapi.se/foodstuff/' + request.form['matsiffra'] + '?nutrient='
-
-    #carbsData = json.loads(requests.get(url + 'carbohydrates').text)
-    #fatData = json.loads(requests.get(url + 'fat').text)
-    #proteinData = json.loads(requests.get(url + 'protein').text)
-
-    #xValues.append(carbsData['nutrientValues']['carbohydrates'])
-    #yValues.append(fatData['nutrientValues']['fat'])
-    #zValues.append(proteinData['nutrientValues']['protein'])
-    #name.append(carbsData['name'])  # + ' ' + carbsData['number'])
-
-    #print(xValues);
-    #print(name);
-
+    # fetch data from csv-file
     dataToChart = getDataSet()
-    centroids = cluster(dataToChart.transpose())
 
+    # cluster that data into the number of clusters specified by user
+    labels = cluster(dataToChart.transpose())
 
-    trace1 = go.Scatter3d(
-        x=dataToChart[0],
-        y=dataToChart[1],
-        z=dataToChart[2],
-        mode='markers',
-        marker=dict(
-            size=12,
-            line=dict(
-                color='rgba(217, 217, 217, 0.14)',
-                width=0.5
+    # create 3D array of data by label
+    segmentedData = [[[],[],[]],[[],[],[]],[[],[],[]]] # @todo:fix so that number of clusters isn't hard coded
+
+    for num, label in enumerate(labels):
+        print (str(num) + ' ' + str(label))
+        segmentedData[label][0].append(round(dataToChart[0][num], 2)) # @todo: figure out why rounding was neede here
+        segmentedData[label][1].append(round(dataToChart[1][num], 2))
+        segmentedData[label][2].append(round(dataToChart[2][num], 2))
+
+    print(segmentedData)
+
+    # create traces for plotly
+
+    traces = []
+    baseColor = 100
+    i = 0
+    while (i < numClusters):
+        trace = go.Scatter3d(
+            x=segmentedData[i][0],
+            y=segmentedData[i][1],
+            z=segmentedData[i][2],
+            mode='markers',
+            marker=dict(
+                size=12,
+                line=dict(
+                    color='rgba(baseColor+(i*2), baseColor+(i*2), baseColor+(i*2), 0.14)',
+                    width=0.5
+                ),
+                opacity=0.8
             ),
-            opacity=0.8
-        ),
-        text=names
-    )
-
-    trace2 = go.Scatter3d(
-        x=centroids.transpose()[0],
-        y=centroids.transpose()[1],
-        z=centroids.transpose()[2],
-        mode='markers',
-        marker=dict(
-            size=8,
-            line=dict(
-                color='rgba(000, 200, 150, 0.14)',
-                width = 0.2
-            )
+            #text=names # @todo: fix names list
         )
-    )
+        traces.append(trace)
+        i+=1
 
-    data = [trace1, trace2]
+    # trace1 = go.Scatter3d(
+    #     x=dataToChart[0],
+    #     y=dataToChart[1],
+    #     z=dataToChart[2],
+    #     mode='markers',
+    #     marker=dict(
+    #         size=12,
+    #         line=dict(
+    #             color='rgba(217, 217, 217, 0.14)',
+    #             width=0.5
+    #         ),
+    #         opacity=0.8
+    #     ),
+    #     text=names
+    # )
+
+    # trace2 = go.Scatter3d(
+    #     x=centroids.transpose()[0],
+    #     y=centroids.transpose()[1],
+    #     z=centroids.transpose()[2],
+    #     mode='markers',
+    #     marker=dict(
+    #         size=8,
+    #         line=dict(
+    #             color='rgba(000, 200, 150, 0.14)',
+    #             width = 0.2
+    #         )
+    #     )
+    # )
+
 
     layout = go.Layout(
         scene=go.Scene(
@@ -95,7 +114,7 @@ def cluster_test():
         )
     )
 
-    fig = go.Figure(data=data, layout=layout)
+    fig = go.Figure(data=traces, layout=layout)
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('cluster-test.html', graphJSON=graphJSON)
 
