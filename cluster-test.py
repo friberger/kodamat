@@ -41,9 +41,7 @@ def cluster_test():
     # cluster that data into the number of clusters specified by user
     labels = cluster(dataToChartTransposed)
 
-    # create 3D array of data by label
-    # @todo:fix so that number of clusters isn't hard coded
-    # try to use something like [[]] * 3
+    # create multi dimensional array of data by label
     segmentedData = [[[], [], []]] * numClusters
 
     for num, label in enumerate(labels):
