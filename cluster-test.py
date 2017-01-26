@@ -35,13 +35,16 @@ def hello_world():
 def cluster_test():
 
     # fetch data from csv-file
-    dataToChart = getDataSet()
+    dataToChart = getDataSet() # returns numpy array of array of carbs, fats and proteins
+    dataToChartTransposed = dataToChart.transpose() # makes array where each of the elements are grouped by their food
 
     # cluster that data into the number of clusters specified by user
-    labels = cluster(dataToChart.transpose())
+    labels = cluster(dataToChartTransposed)
 
     # create 3D array of data by label
-    segmentedData = [[[],[],[]],[[],[],[]],[[],[],[]]] # @todo:fix so that number of clusters isn't hard coded
+    # @todo:fix so that number of clusters isn't hard coded
+    # try to use something like [[]] * 3
+    segmentedData = [[[], [], []]] * numClusters
 
     for num, label in enumerate(labels):
         print (str(num) + ' ' + str(label))
