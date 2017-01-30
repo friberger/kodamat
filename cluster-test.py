@@ -51,9 +51,15 @@ def cluster_test():
     #print(xValues);
     #print(name);
 
+    dataSet = np.array([[0.5, 60, 0.4],
+                        [0.3, 70, 0.2],
+                        [64.4, 2.5, 10],
+                        [57.6, 2.5, 14.58],
+                        [23.4, 11.4, 2.4],
+                        [23.9, 7, 2.76]]).transpose()
+
     dataToChart = getDataSet()
     centroids = cluster(dataToChart.transpose())
-
 
     trace1 = go.Scatter3d(
         x=dataToChart[0],
@@ -105,9 +111,10 @@ def update_num_clusters():
     numClusters = int(request.form['numClustr'])
     return cluster_test()
 
+
+
 def getDataSet():
     # Second version, read from csv
-
 
     global names
     names = []
@@ -116,7 +123,7 @@ def getDataSet():
     fats = []
     proteins = []
 
-    with open('LivsmedelsDB_201611160847_01.csv') as csvfile:
+    with open('/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01.csv') as csvfile:
         readCSV = csv.reader(csvfile, delimiter=',')
         first = True
 
@@ -125,7 +132,7 @@ def getDataSet():
                 first=False
 
             else:
-                if (len(numbers)<50):
+                if (len(numbers)<5):
                     name = row[0]
                     number = int(row[1])
                     carb = float(row[4])
@@ -154,8 +161,7 @@ def getDataSet():
 
     ###############################
 
-
-    # First hardcoded version
+     #First hardcoded version
 
     # kolhydrater, fett, protein
     # 7
@@ -169,14 +175,14 @@ def getDataSet():
     #name=['Bordsmargarin typ Milda 70 proc', 'Bordsmargarin typ Milda 60 proc', 'Hart brod Wasa Husman', 'Hart brod Ryvita morkt', 'Schweizisk potatiskaka rosti fryst varmd', 'Potatiskroketter frysta varmda']
 
 
-    #dataSet = np.array([[0.5, 60, 0.4],
-                        # [0.3, 70, 0.2],
-                        # [64.4, 2.5, 10],
-                        # [57.6, 2.5, 14.58],
-                        # [23.4, 11.4, 2.4],
-                        # [23.9, 7, 2.76]])
+    dataSet = np.array([[0.5, 60, 0.4],
+                         [0.3, 70, 0.2],
+                         [64.4, 2.5, 10],
+                         [57.6, 2.5, 14.58],
+                         [23.4, 11.4, 2.4],
+                         [23.9, 7, 2.76]]).transpose()
 
-    #return dataSet.transpose()
+    return dataSet.transpose()
 
 
 def cluster(dataSet):
