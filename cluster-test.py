@@ -38,18 +38,20 @@ def cluster_test():
     dataToChart = getDataSet() # returns numpy array of array of carbs, fats and proteins
     dataToChartTransposed = dataToChart.transpose() # makes array where each of the elements are grouped by their food
 
+    #print(dataToChartTransposed)
+    #print(dataToChart)
+
     # cluster that data into the number of clusters specified by user
     labels = cluster(dataToChartTransposed)
 
     # create multi dimensional array of data by label
-    segmentedData = [[[], [], []]] * numClusters
+    segmentedData = [[[] for _ in xrange(3)] for _ in xrange(numClusters)]
 
     for num, label in enumerate(labels):
         print (str(num) + ' ' + str(label))
-        segmentedData[label][0].append(round(dataToChart[0][num], 2)) # @todo: figure out why rounding was neede here
+        segmentedData[label][0].append(round(dataToChart[0][num], 2)) # @todo: figure out why rounding was needed here
         segmentedData[label][1].append(round(dataToChart[1][num], 2))
         segmentedData[label][2].append(round(dataToChart[2][num], 2))
-
     print(segmentedData)
 
     # create traces for plotly
