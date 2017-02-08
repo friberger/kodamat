@@ -23,28 +23,64 @@ def hello_world():
 
     curs = conn.cursor()
 
-    fields = ('Livsmedelsnamn text', 'Livsmedelsnummer text', 'Energi_kcal real', 'Energi_kJ real', 'Kolhydrater_g real', 'Fett_g real', 'Protein_g real', 'Fibrer_g real', 'Vatten_g real', 'Alkohol_g real', 'Aska_g real', 'Monosackarider_g real', 'Disackarider_g real', 'Sackaros_g real', 'Fullkorn_totalt_g real', 'Sockerarter_g real', 'Summa_mattade_fettsyror_g real', 'Fettsyra_40-100_g real', 'Fettsyra_120_g real', 'Fettsyra_140_g real', 'Fettsyra_160_g real', 'Fettsyra_180_g real', 'Fettsyra_200_g real', 'Summa_enkelomattade_fettsyror_g real', 'Fettsyra_161_g real', 'Fettsyra_181_g real', 'Summa_fleromattade_fettsyror_g real', 'Fettsyra_182_g real', 'Fettsyra_183_g real', 'Fettsyra_204_g real', 'EPA_Fettsyra_205_g real', 'DPA_Fettsyra_225_g real', 'DHA_Fettsyra_226_g real', 'Kolesterol_mg real', 'Retinol_mikrog real', 'Vitamin_A_mikrog real', 'beta-Karoten_mikrog real', 'Vitamin_D_mikrog real', 'Vitamin_E_mg real', 'Vitamin_K_mikrog real', 'Tiamin_mg real', 'Riboflavin_mg real', 'Vitamin_C_mg real', 'Niacin_mg real', 'Niacinekvivalenter_mg real', 'Vitamin_B6_mg real', 'Vitamin_B12_mikrog real', 'Folat_mikrog real', 'Fosfor_mg real', 'Jod_mikrog real', 'Jarn_mg real', 'Kalcium_mg real', 'Kalium_mg real', 'Magnesium_mg real', 'Natrium_mg real', 'Salt_g real', 'Selen_mikrog real', 'Zink_mg real', 'Avfall_skal_etc_ real')
+    fields = list(('Livsmedelsnamn text', 'Livsmedelsnummer text', 'Energi_kcal real', 'Energi_kJ real', 'Kolhydrater_g real', 'Fett_g real', 'Protein_g real', 'Fibrer_g real', 'Vatten_g real', 'Alkohol_g real', 'Aska_g real', 'Monosackarider_g real', 'Disackarider_g real', 'Sackaros_g real', 'Fullkorn_totalt_g real', 'Sockerarter_g real', 'Summa_mattade_fettsyror_g real', 'Fettsyra_40-100_g real', 'Fettsyra_120_g real', 'Fettsyra_140_g real', 'Fettsyra_160_g real', 'Fettsyra_180_g real', 'Fettsyra_200_g real', 'Summa_enkelomattade_fettsyror_g real', 'Fettsyra_161_g real', 'Fettsyra_181_g real', 'Summa_fleromattade_fettsyror_g real', 'Fettsyra_182_g real', 'Fettsyra_183_g real', 'Fettsyra_204_g real', 'EPA_Fettsyra_205_g real', 'DPA_Fettsyra_225_g real', 'DHA_Fettsyra_226_g real', 'Kolesterol_mg real', 'Retinol_mikrog real', 'Vitamin_A_mikrog real', 'beta-Karoten_mikrog real', 'Vitamin_D_mikrog real', 'Vitamin_E_mg real', 'Vitamin_K_mikrog real', 'Tiamin_mg real', 'Riboflavin_mg real', 'Vitamin_C_mg real', 'Niacin_mg real', 'Niacinekvivalenter_mg real', 'Vitamin_B6_mg real', 'Vitamin_B12_mikrog real', 'Folat_mikrog real', 'Fosfor_mg real', 'Jod_mikrog real', 'Jarn_mg real', 'Kalcium_mg real', 'Kalium_mg real', 'Magnesium_mg real', 'Natrium_mg real', 'Salt_g real', 'Selen_mikrog real', 'Zink_mg real', 'Avfall_skal_etc_ real'))
 
+    #string_test = str(['Livsmedelsnamn text', 'Livsmedelsnummer text', 'Energi_kcal real']).strip('[]')
+    string_test = str(fields).strip('[]')
 
-    sql_create = '''CREATE TABLE food2 (%s)''' % fields
+    string_test = string_test.decode()
+
+    sql_create = '''CREATE TABLE food2 (%s)''' % string_test
+    #sql_create = '''CREATE TABLE food2 ('Livsmedelsnamn text', 'Livsmedelsnummer text', 'Energi_kcal real')'''
+
+    print sql_create
+    print 'här!'
 
     curs.execute('''DROP TABLE IF EXISTS food2''')
     curs.execute(sql_create)
 
+    with open('/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv') as csvfile:
+        d = [tuple(line) for line in csv.reader(csvfile)]
 
+    fields = tuple(d)
+
+    d=d[1]
+
+    #('Vitt br\xc3\xb6d fibrer 3,5% ospec', '202', '265.6', '1111.4', '47.7', '3.61', '8.17', '3.5', '35.5', '0', '1.54', '1.96', '2.36', '0.05', '0', '', '0.43', '0', '0.01', '0.01', '0.25', '0.11', '0.01', '1.2', '0.01', '1.15', '0.77', '0.62', '0.14', '0', '0', '0', '0', '0', '17.7', '18.2', '6', '0', '0.88', '3.5', '0.22', '0.09', '0', '2.14', '3.5', '0.19', '0.14', '37.1', '141.7', '2', '1.12', '43.9', '173.8', '29.4', '400', '1', '4.4', '0.75', '0')
+
+    mystring = 'u'
+
+
+    print mystring
+    print 'där'
+
+
+    print d
+    print 'här!'
+
+    e = (
+        (u'Fått', 44, 34.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
+        (u'Fisk', 37, 23.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+    )
+
+    curs.executemany("INSERT INTO food2 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", d)
+    # curs.execute("INSERT INTO food VALUES ('Gurka ','45',454,0.5,'40')")
+
+    # Commit the inserted rows.
+    conn.commit()
 
     hurManga = '?'
-    for x in range(len(d[fields]) - 1):
+    for x in range(len(fields) - 1):
         hurManga += ', ?'
 
-    print hurManga + 'antal platshållare'
+    print str(len(hurManga)) + ' antal platshållare'
 
     #curs.executemany("INSERT INTO food2 VALUES (%s)" % hurManga, d)
 
     #conn.commit()
 
     # Now fetch back the inserted data and write it to JSON.
-    curs.execute("SELECT * FROM food2")
+    curs.execute("SELECT * FROM food2 order by 'Livsmedelsnummer' ")
     recs = curs.fetchall()
 
     print type(recs)
@@ -54,10 +90,10 @@ def hello_world():
     rows = [dict(rec) for rec in recs]
     print rows
 
-    for row in curs.execute('select * from food2 order by number'):
+    for row in curs.execute('select * from food2'):
         print row
 
-    print u'slut på det'
+    print 'slut på det'
 
     # Create table.
     curs.execute('''DROP TABLE IF EXISTS food''')
@@ -150,6 +186,12 @@ def prepare_import():
     'Niacinekvivalenter (mg)', 'Vitamin B6 (mg)', 'Vitamin B12 (\xc2\xb5g)', 'Folat (\xc2\xb5g)', 'Fosfor (mg)',
     'Jod (\xc2\xb5g)', 'J\xc3\xa4rn (mg)', 'Kalcium (mg)', 'Kalium (mg)', 'Magnesium (mg)', 'Natrium (mg)', 'Salt (g)',
     'Selen (\xc2\xb5g)', 'Zink (mg)', 'Avfall (skal etc.) (%)')
+
+    hurManga = '?'
+    for x in range(len(fields) - 1):
+        hurManga += ', ?'
+
+    print hurManga + 'hej'
 
     fields_list = list(fields)
 
