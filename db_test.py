@@ -3,7 +3,9 @@
 
 import csv
 import sqlite3
+import codecs
 import unicodedata
+import io
 from flask import Flask
 
 app = Flask(__name__)
@@ -39,12 +41,13 @@ def hello_world():
     curs.execute('''DROP TABLE IF EXISTS food2''')
     curs.execute(sql_create)
 
-    with open('/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv') as csvfile:
-        d = [tuple(line) for line in csv.reader(csvfile)]
+    #with io.open('/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv', encoding="utf-8") as csvfile:
+    #    d = [tuple(line) for line in csv.reader(csvfile)]
 
+    d=[]
     fields = tuple(d)
 
-    d=d[1]
+    #d=d[1]
 
     #('Vitt br\xc3\xb6d fibrer 3,5% ospec', '202', '265.6', '1111.4', '47.7', '3.61', '8.17', '3.5', '35.5', '0', '1.54', '1.96', '2.36', '0.05', '0', '', '0.43', '0', '0.01', '0.01', '0.25', '0.11', '0.01', '1.2', '0.01', '1.15', '0.77', '0.62', '0.14', '0', '0', '0', '0', '0', '17.7', '18.2', '6', '0', '0.88', '3.5', '0.22', '0.09', '0', '2.14', '3.5', '0.19', '0.14', '37.1', '141.7', '2', '1.12', '43.9', '173.8', '29.4', '400', '1', '4.4', '0.75', '0')
 
@@ -52,7 +55,7 @@ def hello_world():
 
 
     print mystring
-    print 'där'
+    print 'torsdag'
 
 
     print d
@@ -62,6 +65,8 @@ def hello_world():
         (u'Fått', 44, 34.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
         (u'Fisk', 37, 23.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
     )
+
+    d=[(u'Vitt br\xf6d fibrer 3,5% ospec', u'202', u'265.6', u'1111.4', u'47.7', u'3.61', u'8.17', u'3.5', u'35.5', u'0', u'1.54', u'1.96', u'2.36', u'0.05', u'0', u'', u'0.43', u'0', u'0.01', u'0.01', u'0.25', u'0.11', u'0.01', u'1.2', u'0.01', u'1.15', u'0.77', u'0.62', u'0.14', u'0', u'0', u'0', u'0', u'0', u'17.7', u'18.2', u'6', u'0', u'0.88', u'3.5', u'0.22', u'0.09', u'0', u'2.14', u'3.5', u'0.19', u'0.14', u'37.1', u'141.7', u'2', u'1.12', u'43.9', u'173.8', u'29.4', u'400', u'1', u'4.4', u'0.75', u'0')]
 
     curs.executemany("INSERT INTO food2 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", d)
     # curs.execute("INSERT INTO food VALUES ('Gurka ','45',454,0.5,'40')")
@@ -85,13 +90,21 @@ def hello_world():
 
     print type(recs)
     print 'typ'
-
+    print 'torsdag'
     print "DB data as a list with a dict per DB record:"
     rows = [dict(rec) for rec in recs]
     print rows
 
+    #Maries kod
+
+    result=[]
+    print 'Här blir det en tuple:'
     for row in curs.execute('select * from food2'):
         print row
+        result=result.append(row)
+
+    print 'result'
+    print result
 
     print 'slut på det'
 
@@ -211,3 +224,25 @@ def prepare_import():
     print fields_tuple
 
     return 'Slut på import'
+
+@app.route('/unicode')
+def unicodeimport ():
+
+    print (u'Här börjar det')
+
+    def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
+        csv_reader = csv.reader(utf8_data, dialect=dialect, **kwargs)
+        for row in csv_reader:
+            yield [unicode(cell, 'utf-8') for cell in row]
+
+    filename = '/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv'
+    reader = unicode_csv_reader(open(filename))
+    for field1 in reader:
+        print tuple(field1)
+
+    f=[]
+    with codecs.open('/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv', encoding='utf-8'):
+        for field1 in f:
+            print tuple(field1)
+
+    return (u'Hej då')
