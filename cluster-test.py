@@ -39,6 +39,7 @@ def cluster_test():
     db_conn = initialize_db()
     curs = db_conn.cursor()
 
+    #@todo pass db_conn back to db_to_memory in db_test and move code below (for reading from db) to that method
 
     result = []
     print 'Här blir det en tuple:'
@@ -52,6 +53,7 @@ def cluster_test():
 
     db_conn.close()
 
+    #@todo rename the dataToChart variables so that they make more sense with this setup
     dataToChartTransposed = np.array(result[1:])
 
     labels = cluster(dataToChartTransposed)
