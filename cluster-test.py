@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from db_test import initialize_db, db_to_memory
 import numpy as np
 from sklearn.cluster import KMeans
 import json
@@ -33,25 +36,53 @@ def hello_world():
 @app.route('/cluster-test/')
 @app.route('/cluster-test/<name>')
 def cluster_test():
+    db_conn = initialize_db()
+    curs = db_conn.cursor()
+
+
+    result = []
+    print 'Här blir det en tuple:'
+    #for row in curs.execute('select * from food2'):
+    for row in curs.execute('select "Kolhydrater_g real", "Fett_g real", "Protein_g real" from food2'):
+        #print row
+        result.append(row)
+
+    print 'result'
+    print result[1:]
+
+    db_conn.close()
+
+    dataToChartTransposed = np.array(result[1:])
+
+    labels = cluster(dataToChartTransposed)
+
+    dataToChart = dataToChartTransposed.transpose()
+
+    ## old way starts here
 
     # fetch data from csv-file
-    dataToChart = getDataSet() # returns numpy array of array of carbs, fats and proteins
-    dataToChartTransposed = dataToChart.transpose() # makes array where each of the elements are grouped by their food
+    #dataToChart = getDataSet() # returns numpy array of array of carbs, fats and proteins
+    #dataToChartTransposed = dataToChart.transpose() # makes array where each of the elements are grouped by their food
 
     #print(dataToChartTransposed)
     #print(dataToChart)
 
     # cluster that data into the number of clusters specified by user
-    labels = cluster(dataToChartTransposed)
+    #labels = cluster(dataToChartTransposed)
+
+    ## old way stops here
 
     # create multi dimensional array of data by label
     segmentedData = [[[] for _ in xrange(3)] for _ in xrange(numClusters)]
 
     for num, label in enumerate(labels):
         print (str(num) + ' ' + str(label))
-        segmentedData[label][0].append(round(dataToChart[0][num], 2)) # @todo: figure out why rounding was needed here
-        segmentedData[label][1].append(round(dataToChart[1][num], 2))
-        segmentedData[label][2].append(round(dataToChart[2][num], 2))
+        segmentedData[label][0].append(dataToChart[0][num])
+        segmentedData[label][1].append(dataToChart[1][num])
+        segmentedData[label][2].append(dataToChart[2][num])
+        #segmentedData[label][0].append(round(dataToChart[0][num], 2)) # @todo: figure out why rounding was needed here
+        #segmentedData[label][1].append(round(dataToChart[1][num], 2))
+        #segmentedData[label][2].append(round(dataToChart[2][num], 2))
     print(segmentedData)
 
     # create traces for plotly
