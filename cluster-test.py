@@ -13,7 +13,7 @@ import csv
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 
-debug = False  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
+debug = True  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
 
 app = Flask(__name__)
 
@@ -35,28 +35,12 @@ def hello_world():
 @app.route('/cluster-test/')
 def cluster_test():
 
-    db_conn = initialize_db()
-    curs = db_conn.cursor()
+    dataSet = getDataSetFromDatabase()
 
-    #@todo pass db_conn back to db_to_memory in db_test and move code below (for reading from db) to that method
+    labels = cluster(dataSet)
 
-    result = []
-    # hämtar som tupler @todo: kolla Simons anteckningar så att det verkligen var så
-    for row in curs.execute('select "Kolhydrater_g real", "Fett_g real", "Protein_g real" from food2'):
-        result.append(row)
-
-    if debug:
-        print 'result'
-        print result[1:]
-
-    db_conn.close()
-
-    #@todo rename the dataToChart variables so that they make more sense with this setup
-    dataToChartTransposed = np.array(result[1:]) # skippa första raden, den är kolumnrubriker
-
-    labels = cluster(dataToChartTransposed)
-
-    dataToChart = dataToChartTransposed.transpose()
+    # transpose to work with Plotly-format (don't remember if it is sklear.cluster or plotly that is counterintuitive)
+    dataToChart = dataSet.transpose()
 
     # create multi dimensional array of data by label
     segmentedData = [[[] for _ in xrange(3)] for _ in xrange(numClusters)]
@@ -67,14 +51,14 @@ def cluster_test():
         segmentedData[label][1].append(dataToChart[1][num])
         segmentedData[label][2].append(dataToChart[2][num])
 
-    print(segmentedData)
+    if debug:
+        print(segmentedData)
 
     # create traces for plotly
-
     traces = []
     baseColor = 100
     i = 0
-    while (i < numClusters):
+    while i < numClusters:
         trace = go.Scatter3d(
             x=segmentedData[i][0],
             y=segmentedData[i][1],
@@ -88,7 +72,8 @@ def cluster_test():
                 ),
                 opacity=0.8
             ),
-            #text=names # @todo: fix names list
+            # @todo: fix names list for plotly
+            #text=names
         )
         traces.append(trace)
         i+=1
@@ -105,13 +90,48 @@ def cluster_test():
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('cluster-test.html', graphJSON=graphJSON)
 
-@app.route('/add', methods=['POST'])
+def cluster(dataSet):
+
+    kmeans = KMeans(n_clusters=numClusters)
+    kmeans.fit(dataSet)
+
+    centroids = kmeans.cluster_centers_
+    labels = kmeans.labels_
+
+    if debug:
+        print (centroids)
+        print (labels)
+
+    return labels
+
+@app.route('/cluster', methods=['POST'])
 def update_num_clusters():
     global numClusters
     numClusters = int(request.form['numClustr'])
     return cluster_test()
 
-# T
+def getDataSetFromDatabase():
+    # @todo update to use sqllite (using function getDataSetFromDatabase() below, rather than separate file db_test.py)
+
+    db_conn = initialize_db()
+    curs = db_conn.cursor()
+
+    result = []
+    # hämtar som tupler @todo: kolla Simons anteckningar så att det verkligen var så
+    for row in curs.execute('select "Kolhydrater_g real", "Fett_g real", "Protein_g real" from food2'):
+        result.append(row)
+
+    result = result[1:]  # skippa första raden, den är kolumnrubriker
+
+    if debug:
+        print 'result'
+        print result
+
+    db_conn.close()
+
+    return np.array(result)
+
+# This was the old method, the format of the returned data might not work with code above.
 def getDataSetFromCSV():
 
     global names
@@ -152,17 +172,3 @@ def getDataSetFromCSV():
         print(proteins)
 
     return np.array((carbs, fats, proteins), dtype=float)
-
-def cluster(dataSet):
-
-    kmeans = KMeans(n_clusters=numClusters)
-    kmeans.fit(dataSet)
-
-    centroids = kmeans.cluster_centers_
-    labels = kmeans.labels_
-
-    if debug:
-        print (centroids)
-        print (labels)
-
-    return labels
