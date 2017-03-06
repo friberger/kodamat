@@ -13,6 +13,7 @@ import csv
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 
+debug = False  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
 
 app = Flask(__name__)
 
@@ -26,53 +27,36 @@ app.config.update(dict(
     SECRET_KEY='development key',
 ))
 
-
 @app.route('/')
 def hello_world():
     # Render the Template
     return render_template('cluster-test.html')
 
-
 @app.route('/cluster-test/')
-@app.route('/cluster-test/<name>')
 def cluster_test():
+
     db_conn = initialize_db()
     curs = db_conn.cursor()
 
     #@todo pass db_conn back to db_to_memory in db_test and move code below (for reading from db) to that method
 
     result = []
-    print 'Här blir det en tuple:'
-    #for row in curs.execute('select * from food2'):
+    # hämtar som tupler @todo: kolla Simons anteckningar så att det verkligen var så
     for row in curs.execute('select "Kolhydrater_g real", "Fett_g real", "Protein_g real" from food2'):
-        #print row
         result.append(row)
 
-    print 'result'
-    print result[1:]
+    if debug:
+        print 'result'
+        print result[1:]
 
     db_conn.close()
 
     #@todo rename the dataToChart variables so that they make more sense with this setup
-    dataToChartTransposed = np.array(result[1:])
+    dataToChartTransposed = np.array(result[1:]) # skippa första raden, den är kolumnrubriker
 
     labels = cluster(dataToChartTransposed)
 
     dataToChart = dataToChartTransposed.transpose()
-
-    ## old way starts here
-
-    # fetch data from csv-file
-    #dataToChart = getDataSet() # returns numpy array of array of carbs, fats and proteins
-    #dataToChartTransposed = dataToChart.transpose() # makes array where each of the elements are grouped by their food
-
-    #print(dataToChartTransposed)
-    #print(dataToChart)
-
-    # cluster that data into the number of clusters specified by user
-    #labels = cluster(dataToChartTransposed)
-
-    ## old way stops here
 
     # create multi dimensional array of data by label
     segmentedData = [[[] for _ in xrange(3)] for _ in xrange(numClusters)]
@@ -82,9 +66,7 @@ def cluster_test():
         segmentedData[label][0].append(dataToChart[0][num])
         segmentedData[label][1].append(dataToChart[1][num])
         segmentedData[label][2].append(dataToChart[2][num])
-        #segmentedData[label][0].append(round(dataToChart[0][num], 2)) # @todo: figure out why rounding was needed here
-        #segmentedData[label][1].append(round(dataToChart[1][num], 2))
-        #segmentedData[label][2].append(round(dataToChart[2][num], 2))
+
     print(segmentedData)
 
     # create traces for plotly
@@ -111,37 +93,6 @@ def cluster_test():
         traces.append(trace)
         i+=1
 
-    # trace1 = go.Scatter3d(
-    #     x=dataToChart[0],
-    #     y=dataToChart[1],
-    #     z=dataToChart[2],
-    #     mode='markers',
-    #     marker=dict(
-    #         size=12,
-    #         line=dict(
-    #             color='rgba(217, 217, 217, 0.14)',
-    #             width=0.5
-    #         ),
-    #         opacity=0.8
-    #     ),
-    #     text=names
-    # )
-
-    # trace2 = go.Scatter3d(
-    #     x=centroids.transpose()[0],
-    #     y=centroids.transpose()[1],
-    #     z=centroids.transpose()[2],
-    #     mode='markers',
-    #     marker=dict(
-    #         size=8,
-    #         line=dict(
-    #             color='rgba(000, 200, 150, 0.14)',
-    #             width = 0.2
-    #         )
-    #     )
-    # )
-
-
     layout = go.Layout(
         scene=go.Scene(
             xaxis=go.XAxis(title='Carbs', tickprefix='Carbs ', showtickprefix='first'),
@@ -160,9 +111,8 @@ def update_num_clusters():
     numClusters = int(request.form['numClustr'])
     return cluster_test()
 
-def getDataSet():
-    # Second version, read from csv
-
+# T
+def getDataSetFromCSV():
 
     global names
     names = []
@@ -203,37 +153,6 @@ def getDataSet():
 
     return np.array((carbs, fats, proteins), dtype=float)
 
-    # What to do next? Either get all values into dataset format, or read subset
-    # if subset, random or what?
-
-
-    ###############################
-
-
-    # First hardcoded version
-
-    # kolhydrater, fett, protein
-    # 7
-    # 8
-    # 162 (was 136?) hart brod
-    # 163 (was 137?) hart brod
-    # 281 (was 236?) Schweizisk potatiskaka rosti fryst varmd
-    # 282 (was 237?) Potatiskroketter frysta varmda
-
-    #global name
-    #name=['Bordsmargarin typ Milda 70 proc', 'Bordsmargarin typ Milda 60 proc', 'Hart brod Wasa Husman', 'Hart brod Ryvita morkt', 'Schweizisk potatiskaka rosti fryst varmd', 'Potatiskroketter frysta varmda']
-
-
-    #dataSet = np.array([[0.5, 60, 0.4],
-                        # [0.3, 70, 0.2],
-                        # [64.4, 2.5, 10],
-                        # [57.6, 2.5, 14.58],
-                        # [23.4, 11.4, 2.4],
-                        # [23.9, 7, 2.76]])
-
-    #return dataSet.transpose()
-
-
 def cluster(dataSet):
 
     kmeans = KMeans(n_clusters=numClusters)
@@ -242,10 +161,8 @@ def cluster(dataSet):
     centroids = kmeans.cluster_centers_
     labels = kmeans.labels_
 
-    print (centroids)
-    print (labels)
+    if debug:
+        print (centroids)
+        print (labels)
 
     return labels
-    # print(X)
-    #print(centroids)
-    #print(labels)
