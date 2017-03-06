@@ -6,19 +6,19 @@ import sqlite3
 import codecs
 import unicodedata
 import io
-from flask import Flask
+#from flask import Flask
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
 
-@app.route('/')
-def hello_world():
-    print 'Hello, World!'
+#@app.route('/')
+def initialize_db():
+    print 'Hello, brave new database!'
 
 
     # 59 värden
 
-    conn = sqlite3.connect('example.db')
+    conn = sqlite3.connect('example.db') # create db and establish connection
 
     # This enables column access by name: row['column_name']
     conn.row_factory = sqlite3.Row
@@ -28,7 +28,7 @@ def hello_world():
     fields = str(('Livsmedelsnamn text', 'Livsmedelsnummer text', 'Energi_kcal real', 'Energi_kJ real', 'Kolhydrater_g real', 'Fett_g real', 'Protein_g real', 'Fibrer_g real', 'Vatten_g real', 'Alkohol_g real', 'Aska_g real', 'Monosackarider_g real', 'Disackarider_g real', 'Sackaros_g real', 'Fullkorn_totalt_g real', 'Sockerarter_g real', 'Summa_mattade_fettsyror_g real', 'Fettsyra_40-100_g real', 'Fettsyra_120_g real', 'Fettsyra_140_g real', 'Fettsyra_160_g real', 'Fettsyra_180_g real', 'Fettsyra_200_g real', 'Summa_enkelomattade_fettsyror_g real', 'Fettsyra_161_g real', 'Fettsyra_181_g real', 'Summa_fleromattade_fettsyror_g real', 'Fettsyra_182_g real', 'Fettsyra_183_g real', 'Fettsyra_204_g real', 'EPA_Fettsyra_205_g real', 'DPA_Fettsyra_225_g real', 'DHA_Fettsyra_226_g real', 'Kolesterol_mg real', 'Retinol_mikrog real', 'Vitamin_A_mikrog real', 'beta-Karoten_mikrog real', 'Vitamin_D_mikrog real', 'Vitamin_E_mg real', 'Vitamin_K_mikrog real', 'Tiamin_mg real', 'Riboflavin_mg real', 'Vitamin_C_mg real', 'Niacin_mg real', 'Niacinekvivalenter_mg real', 'Vitamin_B6_mg real', 'Vitamin_B12_mikrog real', 'Folat_mikrog real', 'Fosfor_mg real', 'Jod_mikrog real', 'Jarn_mg real', 'Kalcium_mg real', 'Kalium_mg real', 'Magnesium_mg real', 'Natrium_mg real', 'Salt_g real', 'Selen_mikrog real', 'Zink_mg real', 'Avfall_skal_etc_ real'))
     fields = fields.strip('()')
 
-    #print fields
+    print fields
 
     sql_create = '''CREATE TABLE food2 (%s)''' % fields
 
@@ -42,7 +42,7 @@ def hello_world():
         for row in csv_reader:
             yield [unicode(cell, 'utf-8') for cell in row]
     data = []
-    filename = '/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv'
+    filename = 'LivsmedelsDB_201611160847_01_liten.csv'
     reader = unicode_csv_reader(open(filename))
     for field1 in reader:
         data.append(tuple(field1))
@@ -55,6 +55,10 @@ def hello_world():
     # Commit the inserted rows.
     conn.commit()
 
+    return conn
+
+def db_to_memory():
+
     # Now fetch back the inserted data and write it to JSON.
     curs.execute("SELECT * FROM food2 order by 'Livsmedelsnummer' ")
     recs = curs.fetchall()
@@ -62,8 +66,6 @@ def hello_world():
     print "DB data as a list with a dict per DB record:"
     rows = [dict(rec) for rec in recs]
     print rows
-
-    #Maries kod
 
     result=[]
     print 'Här blir det en tuple:'
@@ -77,15 +79,13 @@ def hello_world():
 
     print 'slut på det'
 
-
-
     # We can also close the connection if we are done with it.
     conn.close()
 
     return 'Good-bye World'
 
 
-@app.route('/fields')
+#@app.route('/fields')
 def fields_test():
     fields = ('Livsmedelsnamn', 'Livsmedelsnummer', 'Energi (kcal)', 'Energi (kJ)', 'Kolhydrater (g)', 'Fett (g)', 'Protein (g)',
      'Fibrer (g)', 'Vatten (g)', 'Alkohol (g)', 'Aska (g)', 'Monosackarider (g)', 'Disackarider (g)', 'Sackaros (g)',
@@ -114,13 +114,11 @@ def fields_test():
 
     return 'Slut på fields'
 
-@app.route('/import')
+#@app.route('/import')
 def prepare_import():
 
-    with open('/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv') as csvfile:
+    with open('LivsmedelsDB_201611160847_01.csv') as csvfile:
         d = [tuple(line) for line in csv.reader(csvfile)]
-
-
 
     fields = tuple(d)
 
@@ -169,7 +167,7 @@ def prepare_import():
 
     return 'Slut på import'
 
-@app.route('/unicode')
+#@app.route('/unicode')
 def unicodeimport ():
 
     print (u'Här börjar det')
@@ -179,7 +177,7 @@ def unicodeimport ():
         for row in csv_reader:
             yield [unicode(cell, 'utf-8') for cell in row]
     data = []
-    filename = '/Users/organization/PycharmProjects/foodcluster/LivsmedelsDB_201611160847_01_liten.csv'
+    filename = 'LivsmedelsDB_201611160847_01.csv'
     reader = unicode_csv_reader(open(filename))
     for field1 in reader:
         data.append(tuple(field1))
