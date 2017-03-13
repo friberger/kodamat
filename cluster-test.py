@@ -13,7 +13,7 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 
-debug = True  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
+debug = False  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
 
 app = Flask(__name__)
 
@@ -83,7 +83,9 @@ def cluster_test():
             xaxis=go.XAxis(title='Carbs', tickprefix='Carbs ', showtickprefix='first'),
             yaxis=go.YAxis(title='Fat', tickprefix='Fat ', showtickprefix='first'),
             zaxis=go.ZAxis(title='Protein', tickprefix='Protein ', showtickprefix='first')
-        )
+        ),
+        height = 800,
+        width = 800,
     )
 
     fig = go.Figure(data=traces, layout=layout)
