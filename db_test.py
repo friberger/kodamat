@@ -1,3 +1,5 @@
+# @todo Unused. See if there is anything here we need, otherwise remove.
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from db_test import initialize_db, db_to_memory
 import numpy as np
 from sklearn.cluster import KMeans
 import json
@@ -9,6 +8,7 @@ import plotly
 import plotly.graph_objs as go
 import plotly.plotly as py
 import csv
+import sqlite3
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
@@ -112,13 +112,16 @@ def update_num_clusters():
 
 def getDataSetFromDatabase():
     # @todo update to use sqllite (using function getDataSetFromDatabase() below, rather than separate file db_test.py)
+    conn = sqlite3.connect('livs.db')  # create db and establish connection
 
-    db_conn = initialize_db()
-    curs = db_conn.cursor()
+    # This enables column access by name: row['column_name']
+    conn.row_factory = sqlite3.Row
+
+    curs = conn.cursor()
 
     result = []
     # hämtar som tupler @todo: kolla Simons anteckningar så att det verkligen var så
-    for row in curs.execute('select "Kolhydrater_g real", "Fett_g real", "Protein_g real" from food2'):
+    for row in curs.execute('select "Kolhydrater_g", "Fett_g", "Protein_g" from livs'):
         result.append(row)
 
     result = result[1:]  # skippa första raden, den är kolumnrubriker
@@ -127,7 +130,7 @@ def getDataSetFromDatabase():
         print 'result'
         print result
 
-    db_conn.close()
+    conn.close()
 
     return np.array(result)
 
