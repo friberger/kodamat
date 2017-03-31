@@ -9,13 +9,14 @@ import plotly.graph_objs as go
 import plotly.plotly as py
 import csv
 import sqlite3
+import lookup
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 
 debug = False  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
 
-app = Flask(__name__)
+app = lookup.getApp()
 
 names = []
 
