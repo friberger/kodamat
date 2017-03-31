@@ -11,6 +11,9 @@ e = create_engine('sqlite:///livs.db')
 app = Flask(__name__)
 api = Api(app)
 
+def getApp():
+    return app
+
 class Livs_Meta(Resource):
     def get(self):
         #Connect to databse
@@ -33,5 +36,5 @@ class Livs_data(Resource):
 api.add_resource(Livs_data, '/livs/q=<string:livs_nummer>')
 api.add_resource(Livs_Meta, '/livsmedel')
 
-if __name__ == '__main__':
-     app.run()
+#if __name__ == '__main__':
+#     app.run()
