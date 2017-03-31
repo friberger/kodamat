@@ -9,24 +9,19 @@ import plotly.graph_objs as go
 import plotly.plotly as py
 import csv
 import sqlite3
-import lookup
-import __init__
+from kodamat import app, dataSet
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 
 debug = False  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
 
-app = __init__.getApp()
-
 names = []
 
 numClusters = 2
 
-@app.route('/cluster-test/')
+@app.route('/cluster-test')
 def cluster_test():
-
-    dataSet = getDataSetFromDatabase()
 
     labels = cluster(dataSet)
 
@@ -102,69 +97,3 @@ def update_num_clusters():
     global numClusters
     numClusters = int(request.form['numClustr'])
     return cluster_test()
-
-def getDataSetFromDatabase():
-    # @todo update to use sqllite (using function getDataSetFromDatabase() below, rather than separate file db_test.py)
-    conn = sqlite3.connect('livs.db')  # create db and establish connection
-
-    # This enables column access by name: row['column_name']
-    conn.row_factory = sqlite3.Row
-
-    curs = conn.cursor()
-
-    result = []
-    # hämtar som tupler @todo: kolla Simons anteckningar så att det verkligen var så
-    for row in curs.execute('select "Kolhydrater_g", "Fett_g", "Protein_g" from livs'):
-        result.append(row)
-
-    result = result[1:]  # skippa första raden, den är kolumnrubriker
-
-    if debug:
-        print 'result'
-        print result
-
-    conn.close()
-
-    return np.array(result)
-
-# This was the old method, the format of the returned data might not work with code above.
-def getDataSetFromCSV():
-
-    global names
-    names = []
-    numbers = []
-    carbs = []
-    fats = []
-    proteins = []
-
-    with open('LivsmedelsDB_201611160847_01.csv') as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        first = True
-
-        for row in readCSV:
-            if first:
-                first=False
-
-            else:
-                if (len(numbers)<50):
-                    name = row[0]
-                    number = int(row[1])
-                    carb = float(row[4])
-                    fat = float(row[5])
-                    protein = float(row[6])
-
-                    names.append(name)
-                    numbers.append(number)
-                    carbs.append(carb)
-                    fats.append(fat)
-                    proteins.append(protein)
-                else:
-                    break
-
-        print(names)
-        print(numbers)
-        print (carbs)
-        print(fats)
-        print(proteins)
-
-    return np.array((carbs, fats, proteins), dtype=float)

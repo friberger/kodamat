@@ -2,15 +2,15 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
-import __init__
+from kodamat import app, e
 
 #Create a engine for connecting to SQLite3.
 #Assuming salaries.db is in your app root folder
 
 e = create_engine('sqlite:///livs.db')
 
-app = __init__.getApp()
 api = Api(app)
+
 
 class Livs_Meta(Resource):
     def get(self):
