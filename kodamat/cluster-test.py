@@ -10,28 +10,18 @@ import plotly.plotly as py
 import csv
 import sqlite3
 import lookup
+import __init__
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 
 debug = False  # Note that this is different from the DEBUG under app.config.update (@todo: I need to look into that one does)
 
-app = lookup.getApp()
+app = __init__.getApp()
 
 names = []
 
 numClusters = 2
-
-# Load default config and override config from an environment variable
-app.config.update(dict(
-    DEBUG=True,
-    SECRET_KEY='development key',
-))
-
-@app.route('/')
-def hello_world():
-    # Render the Template
-    return render_template('cluster-test.html')
 
 @app.route('/cluster-test/')
 def cluster_test():

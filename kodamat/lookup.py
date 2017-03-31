@@ -2,17 +2,15 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
+import __init__
 
 #Create a engine for connecting to SQLite3.
 #Assuming salaries.db is in your app root folder
 
 e = create_engine('sqlite:///livs.db')
 
-app = Flask(__name__)
+app = __init__.getApp()
 api = Api(app)
-
-def getApp():
-    return app
 
 class Livs_Meta(Resource):
     def get(self):
@@ -35,6 +33,3 @@ class Livs_data(Resource):
 
 api.add_resource(Livs_data, '/livs/q=<string:livs_nummer>')
 api.add_resource(Livs_Meta, '/livsmedel')
-
-#if __name__ == '__main__':
-#     app.run()
