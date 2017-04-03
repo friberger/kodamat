@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
-import csv
 import sqlite3
 import numpy as np
 

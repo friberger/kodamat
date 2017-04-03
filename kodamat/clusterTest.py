@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import numpy as np
 from sklearn.cluster import KMeans
 import json
-import requests
 import plotly
 import plotly.graph_objs as go
-import plotly.plotly as py
-import csv
-import sqlite3
 from kodamat import app, dataSet
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \

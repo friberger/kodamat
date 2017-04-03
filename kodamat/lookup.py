@@ -1,7 +1,7 @@
-from flask import Flask, request
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
-from json import dumps
 from kodamat import app
 
 #Create a engine for connecting to SQLite3.
