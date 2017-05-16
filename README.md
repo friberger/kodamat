@@ -50,3 +50,36 @@ SQLAlchemy==1.1.6
 traitlets==4.3.2
 Werkzeug==0.11.15
 
+cd ~/Development/kodamat
+virtualenv -p /usr/local/Cellar/python/2.7.13/bin/python2.7 venv
+[Se upp för permission denied -> sudo]
+pip install flask
+pip install --upgrade pip
+pip install plotly
+
+export FLASK_APP=cluster-test.py
+flask run
+
+Om nu inte alla dependencies är ok i cluster-test.py så får man följande felaktiga felmeddelande...
+
+Error: The file/path provided (cluster-test) does not appear to exist.  Please verify the path is correct.  If app is not on PYTHONPATH, ensure the extension is .py
+
+Går igenom dependencies för att se vilken som hindrar appen från att alls köras...
+
+pip install json får man inte göra. Samma med sqlite3
+(installerar sudo pip install simplejson)
+(sudo) pip install sklearn OK
+numpy, scipy, requests ska inte installeras
+pip install csv ska man tydligen inte göra
+pip install lookup gav följande fel:
+Could not find function xmlCheckVersion in library libxml2. Is libxml2 installed?
+    Perhaps try: xcode-select --install
+Och när jag gjorde xcode-select skickade den mig att installera vissa xcode-verktyg (som jag trodde fanns på maskinen...)
+
+Funkade inte iaf. Funkade med sudo: sudo pip install lookup
+Efter det gör den en setup.py install for lxml som jag inte vet vad det är
+
+
+
+
+
