@@ -67,7 +67,11 @@
       url_args=decodeURI(url_args);
       url_args=url_args.split(",")
       //muni_list=[muni_list];
-      return url_args;
+      if (url_args != ""){
+        return url_args;
+      } else {
+        return [];
+      }
     }
 
     var multi=new Vue({
