@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Multiselect</title>
+  <script src="vue.js"></script>
+  <script src="plotly-latest.min.js"></script>
+  <script src="vue-multiselect.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/vue-multiselect@2.0.0-beta.14/dist/vue-multiselect.min.css">
+</head>
+<body >
+  <div id="params">
+    <multiselect
+    v-model="param_list"
+    :options="options"
+    :multiple="true"
+    placeholder="Välj näringsvärde"
+    >
+  </multiselect>
+  <!--<pre>{{ param_list }}</pre>-->
+</div>
+<div id="app">
+  //Klipp ut 1
+  <multiselect
+    v-model="selectedFoodOptions"
+    id="ajax"
+    placeholder="Börja skriva"
+    :options="foodOptions"
+    :multiple="true"
+    :searchable="true"
+    :loading="isLoading"
+    :internal-search="false"
+    :clear-on-select="true"
+    :close-on-select="false"
+    :options-limit="100"
+    :limit="15"
+    :limit-text="limitText"
+    @search-change="asyncFind"
+    >
+  </multiselect>
+  //Slut klipp ut 1
+
+  <!--<pre>{{ selectedFoodOptions }}</pre>-->
+  <button type="button" name="button" onclick='drawChart("lin")'>Rita graf</button>
+  <div id="plot" style="width: 1080px; height: 400px;"></div>
+
+  <p>Om du vill komma tillbaka till det här urvalet kan du kopiera adressen i det här fältet:</p>
+  <input id="url" v-model="url" style="width: 600px">
+</div>
+
+
+<script type="text/javascript">
+
+//Klipp ut 2
+var stuff = '';
+var myArr = {};
+function ajaxFindFood(stuff) {
+  var returnList = [];
+  var xmlhttp1 = new XMLHttpRequest();
+  var url = "db2.php?name=" + stuff;
+  xmlhttp1.onreadystatechange = function() {
+    if(xmlhttp1.readyState == 4 && xmlhttp1.status == 200) {
+      myArr = xmlhttp1.responseText; //JSON.parse(xmlhttp1.responseText);
+      myArr = myArr.split('***');
+      myArr.splice(-1,1);
+      for (var i = 0; i < myArr.length; i++) {
+        myArr[i]=JSON.parse(myArr[i]);
+        returnList.push(myArr[i].Livsmedelsnamn);
+      };
+      }
+  }
+  xmlhttp1.open("GET", url, true);
+  xmlhttp1.send();
+  return (returnList);
+}
+//Slut klipp ut 2
+
+
+//multi.selectedFoodOptions = getSelectionFromUrl();
+
+
+var muni_list=[];
+
+function init() {
+  //readFile();
+  multi.muni_list = getSelectionFromUrl();
+
+  var nutritionals = housePrices;
+  var selection = nutritionals[multi.muni_list[0]];
+  var options_list = Object.keys(selection);
+  console.log('Nuttar', nutritionals);
+  console.log('Selection', selection);
+  console.log('Optioner', options_list);
+  parameters.options = options_list;
+
+  drawChart('lin');
+}
+
+function getSelectionFromUrl() {
+  var url_args = window.location.search.substring(1);
+  url_args=decodeURI(url_args);
+  url_args=url_args.split(",")
+  //muni_list=[muni_list];
+  if (url_args != ""){
+    return url_args;
+  } else {
+    return [];
+  }
+}
+
+//Klipp ut 3
+var multi=new Vue({
+  components: {
+    Multiselect: window.VueMultiselect.default
+  },
+  data: {
+    url_args: '',
+    selectedFoodOptions: [],
+    foodOptions: [],
+    isLoading: false
+  },
+  methods: {
+    limitText (count) {
+      return `and ${count} other foods`
+    },
+    asyncFind (query) {
+      this.isLoading = true
+      console.log('asyncFind');
+      this.foodOptions = ajaxFindFood(query);
+      console.log(this.foodOptions);
+      this.isLoading = false
+    }
+  },
+  computed: {
+    url: function (){
+      var address = window.location.href.split('?')[0];
+      var munis = this.selectedFoodOptions;
+      var muni_url = encodeURI(munis);
+      var new_address = address + '?' + muni_url;
+      return new_address;
+    },
+  }
+}).$mount('#app');
+//Slut klipp ut 3
+
+
+var parameters=new Vue({
+  components: {
+    Multiselect: window.VueMultiselect.default
+  },
+  data: {
+    param_list: ["Kolhydrater (g)","Fett (g)","Protein (g)","Fibrer (g)","Vatten (g)","Sockerarter (g)"],
+    yy: '',
+    options: ['Äpplen', 'Päron']
+  }
+
+}).$mount('#params')
+
+
+
+function drawChart(type) {
+  console.log("DrawChart");
+  var data = [];
+  for (var i = 0; i < multi.selectedFoodOptions.length; i++) {
+    //Om kommunlistan är tom, gör inget.
+    if (multi.selectedFoodOptions[i]) {
+      trace=getData(multi.selectedFoodOptions[i]);
+      data.push(trace);
+      var layout = {
+        title: 'Mat',
+        xaxis: {
+          title: 'Näringsvärde'
+        },
+        yaxis: {
+          title: 'gram per 100 g',
+          type: type
+
+        }};
+        Plotly.newPlot('plot', data, layout);
+      }
+    }
+  }
+
+  function getData(muni) {
+    var years = parameters.param_list;
+
+    var plot_data2 = {};
+    plot_data2.x = years;
+
+    var prices = [];
+
+    years.forEach(setY);
+
+    function setY(item, index) {
+      prices.push(housePrices[muni][item]);
+    }
+    plot_data2.y = prices;
+    plot_data2.type = "scatter";
+    plot_data2.name = muni;
+
+    //plot_data2 = [plot_data2];
+
+    console.log(plot_data2);
+    return(plot_data2);
+  }
+
+  </script>
+
+</body>
+</html>
