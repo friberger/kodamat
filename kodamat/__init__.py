@@ -3,6 +3,7 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 import sqlite3
+import json
 import numpy as np
 
 app = Flask(__name__)
@@ -38,7 +39,24 @@ def getDataSetFromDatabase():
 
     return np.array(result)
 
-dataSet = getDataSetFromDatabase()
+npDataSet = getDataSetFromDatabase()
+
+@app.route('/getDataSetJSON', methods=['GET'])
+def getDataSetJSON():
+    conn = sqlite3.connect('kodamat/livs.db')  # create db and establish connection
+
+    # This enables column access by name: row['column_name']
+    conn.row_factory = sqlite3.Row
+
+    curs = conn.cursor()
+
+    rows = curs.execute('select "Livsmedelsnummer", "Livsmedelsnamn", "Kolhydrater_g", "Fett_g", "Protein_g" from livs').fetchall()
+
+    conn.close()
+    return json.dumps( [dict(ix) for ix in rows] )
+
+
+jsonDataSet = getDataSetJSON()
 
 import kodamat.lookup
 import kodamat.clusterTest
@@ -47,5 +65,10 @@ import kodamat.clusterTest
 def hello_world():
     # Render the Template
     return render_template('index.html')
+
+@app.route('/food-line')
+def food_line():
+    print jsonDataSet
+    return render_template ('food-line.html', jsonData = jsonDataSet)
 
 

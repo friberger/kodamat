@@ -4,7 +4,7 @@ from sklearn.cluster import KMeans
 import json
 import plotly
 import plotly.graph_objs as go
-from kodamat import app, dataSet
+from kodamat import app, npDataSet, jsonDataSet
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
@@ -18,10 +18,10 @@ numClusters = 2
 @app.route('/cluster-test')
 def cluster_test():
 
-    labels = cluster(dataSet)
+    labels = cluster(npDataSet)
 
     # transpose to work with Plotly-format (don't remember if it is sklear.cluster or plotly that is counterintuitive)
-    dataToChart = dataSet.transpose()
+    dataToChart = npDataSet.transpose()
 
     # create multi dimensional array of data by label
     segmentedData = [[[] for _ in xrange(3)] for _ in xrange(numClusters)]

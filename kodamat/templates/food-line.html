@@ -44,7 +44,7 @@
     //request.open("G
     //request.send(null)
     //var housePrices = JSON.parse(request.responseText);
-    var housePrices = JSON.parse('{{ jsonData|safe }}'); // @todo här försöker jag fixa, men funkar inte
+    var housePrices = JSON.parse('{{ jsonData|safe }}'); // @todo kan jag skippa json? och skicka array istället?
     var muni_list=[];
     function init() {
       //readFile();
@@ -139,9 +139,3 @@ function getData(muni) {
     </script>
 
   </body>
-
-<form action="{{ url_for('update_num_clusters') }}" method="post" class="add-entry">
-      <dl>
-        <dt>Number of clusters: <input type="number" size="15" name="numClustr"><input type="submit" value="Update">
-      </dl>
-</form>
