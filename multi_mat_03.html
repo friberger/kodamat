@@ -8,7 +8,7 @@
   <script src="vue-multiselect.js"></script>
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/vue-multiselect@2.0.0-beta.14/dist/vue-multiselect.min.css">
 </head>
-<body >
+<body onload=init()>
   <div id="params">
     <multiselect
     v-model="param_list"
@@ -20,40 +20,37 @@
   <!--<pre>{{ param_list }}</pre>-->
 </div>
 <div id="app">
-  //Klipp ut 1
   <multiselect
-    v-model="selectedFoodOptions"
-    id="ajax"
-    placeholder="Börja skriva"
-    :options="foodOptions"
-    :multiple="true"
-    :searchable="true"
-    :loading="isLoading"
-    :internal-search="false"
-    :clear-on-select="true"
-    :close-on-select="false"
-    :options-limit="100"
-    :limit="15"
-    :limit-text="limitText"
-    @search-change="asyncFind"
-    >
-  </multiselect>
-  //Slut klipp ut 1
+  v-model="selectedFoodOptions"
+  id="ajax"
+  placeholder="Börja skriva"
+  :options="foodOptions"
+  :multiple="true"
+  :searchable="true"
+  :loading="isLoading"
+  :internal-search="false"
+  :clear-on-select="true"
+  :close-on-select="true"
+  :options-limit="100"
+  :limit="15"
+  :limit-text="limitText"
+  @search-change="asyncFind"
+  >
+</multiselect>
 
-  <!--<pre>{{ selectedFoodOptions }}</pre>-->
-  <button type="button" name="button" onclick='drawChart("lin")'>Rita graf</button>
-  <div id="plot" style="width: 1080px; height: 400px;"></div>
+<button type="button" name="button" onclick='drawChart(multi.selectedFoodOptions)'>Rita graf</button>
+<div id="plot" style="width: 1080px; height: 400px;"></div>
 
-  <p>Om du vill komma tillbaka till det här urvalet kan du kopiera adressen i det här fältet:</p>
-  <input id="url" v-model="url" style="width: 600px">
+<p>Om du vill komma tillbaka till det här urvalet kan du kopiera adressen i det här fältet:</p>
+<input id="url" v-model="url" style="width: 600px">
 </div>
 
-
 <script type="text/javascript">
-
-//Klipp ut 2
+var type="lin";
 var stuff = '';
 var myArr = {};
+var foodValues = [];
+
 function ajaxFindFood(stuff) {
   var returnList = [];
   var xmlhttp1 = new XMLHttpRequest();
@@ -67,40 +64,25 @@ function ajaxFindFood(stuff) {
         myArr[i]=JSON.parse(myArr[i]);
         returnList.push(myArr[i].Livsmedelsnamn);
       };
-      }
+    }
   }
   xmlhttp1.open("GET", url, true);
   xmlhttp1.send();
   return (returnList);
 }
-//Slut klipp ut 2
 
-
-//multi.selectedFoodOptions = getSelectionFromUrl();
-
-
-var muni_list=[];
+var selectedFoodOptions=[];
 
 function init() {
-  //readFile();
-  multi.muni_list = getSelectionFromUrl();
-
-  var nutritionals = housePrices;
-  var selection = nutritionals[multi.muni_list[0]];
-  var options_list = Object.keys(selection);
-  console.log('Nuttar', nutritionals);
-  console.log('Selection', selection);
-  console.log('Optioner', options_list);
-  parameters.options = options_list;
-
-  drawChart('lin');
+  multi.selectedFoodOptions = getSelectionFromUrl();
+  drawChart(multi.selectedFoodOptions);
 }
 
 function getSelectionFromUrl() {
   var url_args = window.location.search.substring(1);
   url_args=decodeURI(url_args);
   url_args=url_args.split(",")
-  //muni_list=[muni_list];
+  //selectedFoodOptions=[selectedFoodOptions];
   if (url_args != ""){
     return url_args;
   } else {
@@ -108,7 +90,6 @@ function getSelectionFromUrl() {
   }
 }
 
-//Klipp ut 3
 var multi=new Vue({
   components: {
     Multiselect: window.VueMultiselect.default
@@ -141,67 +122,73 @@ var multi=new Vue({
     },
   }
 }).$mount('#app');
-//Slut klipp ut 3
-
 
 var parameters=new Vue({
   components: {
     Multiselect: window.VueMultiselect.default
   },
   data: {
-    param_list: ["Kolhydrater (g)","Fett (g)","Protein (g)","Fibrer (g)","Vatten (g)","Sockerarter (g)"],
+    param_list: ['Kolhydrater_g','Fett_g','Protein_g','Fibrer_g','Vatten_g','Avfall_skal_etc'],
     yy: '',
-    options: ['Äpplen', 'Päron']
+    options: ['Kolhydrater_g','Fett_g','Protein_g','Fibrer_g','Vatten_g','Avfall_skal_etc']
   }
-
 }).$mount('#params')
 
-
-
-function drawChart(type) {
-  console.log("DrawChart");
-  var data = [];
-  for (var i = 0; i < multi.selectedFoodOptions.length; i++) {
-    //Om kommunlistan är tom, gör inget.
-    if (multi.selectedFoodOptions[i]) {
-      trace=getData(multi.selectedFoodOptions[i]);
+function sendToPlotly(foodValues) {
+  var data=[];
+  for (var i = 0; i < foodValues.length; i++) {
+    if (foodValues[i]) {
+      trace=getData(foodValues[i]);
       data.push(trace);
-      var layout = {
-        title: 'Mat',
-        xaxis: {
-          title: 'Näringsvärde'
-        },
-        yaxis: {
-          title: 'gram per 100 g',
-          type: type
-
-        }};
-        Plotly.newPlot('plot', data, layout);
-      }
     }
   }
+  var layout = {
+    title: 'Mat',
+    xaxis: {
+      title: 'Näringsvärde, källa Livsmedelsverket'
+    },
+    yaxis: {
+      title: 'gram per 100 g',
+      type: type
+    }};
+    Plotly.newPlot('plot', data, layout);
+  }
 
-  function getData(muni) {
-    var years = parameters.param_list;
+  function addQuotationMarks(item) {
+    return ("'" + item + "'");
+  }
 
-    var plot_data2 = {};
-    plot_data2.x = years;
-
-    var prices = [];
-
-    years.forEach(setY);
-
-    function setY(item, index) {
-      prices.push(housePrices[muni][item]);
+  function drawChart(foodList) {
+    foodList.forEach(addQuotationMarks);
+    foodList=foodList.join("','");
+    foodList=addQuotationMarks(foodList);
+    var xmlhttp2 = new XMLHttpRequest();
+    foodList=encodeURI(foodList);
+    var url = "food_values.php?foodStuff=" + foodList;
+    xmlhttp2.onreadystatechange = function() {
+      if(xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
+        foodValues = xmlhttp2.responseText; //JSON.parse(xmlhttp2.responseText);
+        foodValues=foodValues.split('##');
+        sendToPlotly(foodValues);
+      }
     }
-    plot_data2.y = prices;
-    plot_data2.type = "scatter";
-    plot_data2.name = muni;
+    xmlhttp2.open("GET", url, true);
+    xmlhttp2.send();
+  }
 
-    //plot_data2 = [plot_data2];
-
-    console.log(plot_data2);
-    return(plot_data2);
+  function getData(oneItem) {
+    var params = parameters.param_list;
+    var oneItem=JSON.parse(oneItem);
+    var plot_data = {};
+    plot_data.x = params;
+    var y=[];
+    for (var i = 0; i < params.length; i++) {
+      y.push(oneItem[params[i]]);
+    }
+    plot_data.y = y;
+    plot_data.type = "scatter";
+    plot_data.name = oneItem['Livsmedelsnamn'];
+    return(plot_data);
   }
 
   </script>

@@ -118,6 +118,8 @@
         if (multi.muni_list[i]) {
           trace=getData(multi.muni_list[i]);
           data.push(trace);
+        }
+      }
   var layout = {
   title: 'Mat',
   xaxis: {
@@ -129,13 +131,13 @@
 
   }};
   Plotly.newPlot('plot', data, layout);
-}
-}
+
+
 }
 
 function getData(muni) {
   var years = parameters.param_list;
-
+  console.log(muni);
   var plot_data2 = {};
   plot_data2.x = years;
 
