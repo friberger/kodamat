@@ -1,7 +1,7 @@
-# Modified from https://github.com/hardikvasa/google-images-download that is licenced under the MIT license
+
 # coding: utf-8
 
-# In[1]:
+# In[10]:
 
 
 
@@ -19,23 +19,24 @@ import os
 #import urllib2
 
 
-# In[2]:
+# In[28]:
 
 ########### Edit From Here ###########
 
 #This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Bregott']
+search_keyword = ['Ister gris']
 
 #This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
 keywords = [' high resolution']
 
 
-# In[3]:
+# In[29]:
 
 #Downloading entire Web Document (Raw Page Content)
 def download_page(url):
     version = (3,0)
     cur_version = sys.version_info
+    #print(cur_version, cur_version >= version)
     if cur_version >= version:     #If the Current Version of Python is 3.0 or above
         import urllib.request    #urllib library for Extracting web pages
         try:
@@ -60,7 +61,7 @@ def download_page(url):
             return"Page Not found"
 
 
-# In[4]:
+# In[30]:
 
 #Finding 'Next Image' from the given raw page
 def _images_get_next_item(s):
@@ -79,7 +80,7 @@ def _images_get_next_item(s):
 
 
 
-# In[5]:
+# In[31]:
 
 #Getting all links with the help of '_images_get_next_image'
 def _images_get_all_items(page):
@@ -95,13 +96,13 @@ def _images_get_all_items(page):
     return items
 
 
-# In[6]:
+# In[32]:
 
 ############## Main Program ############
 t0 = time.time()   #start the timer
 
 
-# In[7]:
+# In[33]:
 
 #Download Image Links
 i= 0
@@ -124,7 +125,7 @@ except OSError, e:
 j = 0
 while j<len(keywords):
     pure_keyword = keywords[j].replace(' ','%20')
-    url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+    url = 'https://www.google.se/search?q=' + search +'&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
     raw_html =  (download_page(url))
     time.sleep(0.1)
     items = items + (_images_get_all_items(raw_html))
@@ -134,7 +135,7 @@ print ("Total Image Links = "+str(len(items)))
 print ("\n")
 
 
-# In[8]:
+# In[34]:
 
 #This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
 info = open('output.txt', 'a')        #Open the text file called database.txt
@@ -193,6 +194,11 @@ print("Everything downloaded!")
 print("\n"+str(errorCount)+" ----> total Errors")
 
 #----End of the main program ----#
+
+
+# In[ ]:
+
+
 
 
 # In[ ]:
