@@ -1,12 +1,6 @@
 
 # coding: utf-8
-
-# In[10]:
-
-
-
-# In[ ]:
-
+#Modified from https://github.com/hardikvasa/google-images-download licensed under MIT license 
 #Searching and Downloading Google Images/Image Links
 
 #Import Libraries
