@@ -49,53 +49,54 @@ def largest_file(dir_path):
     else:
         return 0
 
-def fetch_image_urls(query, images_to_download):
-    image_urls = set()
+def fetch_image_data(query, images_to_download):
+    image_data = []
 
-    search_url = "https://www.google.com/search?safe=off&site=&tbm=isch&source=hp&q={q}&oq={q}&gs_l=img"
-    browser = webdriver.Firefox()
+    search_url = "https://www.google.se/search?safe=off&site=&tbm=isch&source=hp&q={q}&oq={q}&gs_l=img"
+    #browser = webdriver.Firefox()
     browser.get(search_url.format(q=query))
-    def scroll_to_bottom():
-        browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)
+    #def scroll_to_bottom():
+    #    browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    #    time.sleep(2)
 
-    image_count = len(image_urls)
-    delta = 0
-    while image_count < images_to_download:
-        print("Found:", len(image_urls), "images")
-        scroll_to_bottom()
+    print("Found:", len(image_data), "images")
+    #scroll_to_bottom()
 
-        images = browser.find_elements_by_css_selector("img.rg_ic")
-        for img in images:
-            image_urls.add(img.get_attribute('src'))
-        delta = len(image_urls) - image_count
-        image_count = len(image_urls)
+    images = browser.find_elements_by_css_selector("img.rg_ic")
+    #number = len(images)
+    #print(number) #100 bilder
+    for img in images:
+        image_data.append(img.get_attribute('src'))
+    #delta = len(image_data) - image_count
+    #image_count = len(image_data)
 
-        if delta == 0:
-            print("Can't find more images")
-            break
 
-        fetch_more_button = browser.find_element_by_css_selector(".ksb._kvc")
-        if fetch_more_button:
-            browser.execute_script("document.querySelector('.ksb._kvc').click();")
-            scroll_to_bottom()
 
-    browser.quit()
-    #print(image_urls)
-    image_urls=list(image_urls)
-    return image_urls[0]
+        #fetch_more_button = browser.find_element_by_css_selector(".ksb._kvc")
+        #if fetch_more_button:
+        #    browser.execute_script("document.querySelector('.ksb._kvc').click();")
+        #    scroll_to_bottom()
+
+    #browser.quit()
+    #print(image_data)
+    #image_data=list(image_data)
+    #print(image_data[0])
+    return image_data[0]
 
 
 
 if __name__ == '__main__':
     args = argument_parser.parse_args()
 
-    ensure_directory('./images/')
+    #ensure_directory('./images/')
 
     query_directory = './images/'
-    #ensure_directory(query_directory)
+    ensure_directory(query_directory)
+    browser = webdriver.Firefox()
+    image_url = fetch_image_data(args.query, args.count)
+    browser.quit()
+    
 
-    image_url = fetch_image_urls(args.query, args.count)
     values=[query_directory,image_url]
     #values = [item for item in zip(itertools.cycle([query_directory]), image_url)]
     #print (values)
@@ -113,7 +114,7 @@ if __name__ == '__main__':
 
 
     #print (image_content)
-    #print("image count", len(image_urls))
+    #print("image count", len(image_data))
     image_file = io.BytesIO(image_content)
     image = Image.open(image_file).convert('RGB')
     #resized = image.resize(size)
