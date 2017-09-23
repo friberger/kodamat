@@ -1,3 +1,5 @@
+# Baserad på denna: https://gist.github.com/kekeblom/204a609ee295c81c3cc202ecbe68752c
+
 # Copyright (c) 2016 Kenneth Blomqvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -95,7 +97,7 @@ if __name__ == '__main__':
     browser = webdriver.Firefox()
     image_url = fetch_image_data(args.query, args.count)
     browser.quit()
-    
+
 
     values=[query_directory,image_url]
     #values = [item for item in zip(itertools.cycle([query_directory]), image_url)]
